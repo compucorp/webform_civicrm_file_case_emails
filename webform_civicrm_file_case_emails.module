@@ -9,4 +9,17 @@
  * Implements hook_mail_alter().
  */
 function webform_civicrm_file_case_emails_mail_alter(array &$message) {
+  // Process webform submission emails only.
+  if ($message['module'] !== 'webform' || $message['key'] !== 'submission') {
+    return;
+  }
+
+  // Include mail processor class.
+  if (!module_load_include('inc', 'webform_civicrm_file_case_emails', 'includes/WcfceMailProcessor')) {
+    return;
+  }
+
+  // File email for a case.
+  $processor = new WcfceMailProcessor($message);
+  $processor->createActivity();
 }
