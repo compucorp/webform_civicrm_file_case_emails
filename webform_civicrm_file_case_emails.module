@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * @file
+ * Module to file webform notification emails as case activities.
+ */
+
+/**
+ * Implements hook_mail_alter().
+ */
+function webform_civicrm_file_case_emails_mail_alter(array &$message) {
+}

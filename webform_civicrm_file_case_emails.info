@@ -1,0 +1,6 @@
+name = Webform CiviCRM File Case Emails
+description = Files webform notification emails as case activities with original emails attached.
+core = 7.x
+version = 7.x-1.0
+package = CiviCRM
+dependencies[] = webform_civicrm
