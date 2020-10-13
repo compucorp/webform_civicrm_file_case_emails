@@ -15,6 +15,13 @@ class WcfceMailProcessor {
   private $message;
 
   /**
+   * The end of line characters used for eml generation.
+   *
+   * @var string
+   */
+  private $crlf = "\n";
+
+  /**
    * WcfceMailProcessor constructor.
    *
    * @param array $message
@@ -22,6 +29,7 @@ class WcfceMailProcessor {
    */
   public function __construct(array $message) {
     $this->message = $message;
+    $this->crlf(variable_get('mimemail_crlf', MAIL_LINE_ENDINGS));
   }
 
   /**
@@ -176,19 +184,18 @@ class WcfceMailProcessor {
 
     // (Copied from mimemail_mailengine())
     // Prepare email data.
-    $crlf = variable_get('mimemail_crlf', MAIL_LINE_ENDINGS);
     $recipients = (!is_array($message['to'])) ? array($message['to']) : $message['to'];
     $subject = mime_header_encode($message['subject']);
-    $body = preg_replace('@\r?\n@', $crlf, $message['body']);
+    $body = preg_replace('@\r?\n@', $this->crlf(), $message['body']);
     $headers = mimemail_rfc_headers($message['headers']);
 
     // Get email pieces together as eml file.
-    $eml  = $headers . $crlf;
-    $eml .= 'Date: ' . date(DATE_RFC822) . $crlf;
-    $eml .= 'To: ' . implode($crlf . 'To: ', $recipients) . $crlf;
-    $eml .= 'Subject: ' . $subject . $crlf . $crlf;
+    $eml  = $headers . $this->crlf();
+    $eml .= 'Date: ' . date(DATE_RFC822) . $this->crlf();
+    $eml .= 'To: ' . implode($this->crlf() . 'To: ', $recipients) . $this->crlf();
+    $eml .= 'Subject: ' . $subject . $this->crlf() . $this->crlf();
     $eml .= $body;
-    $eml = $this->appendWebformFilesToEml($eml, $message, $crlf);
+    $eml = $this->appendWebformFilesToEml($eml, $message);
 
     return $eml;
   }
@@ -200,14 +207,12 @@ class WcfceMailProcessor {
    *   Email message in eml format.
    * @param array|null $message
    *   (Optional) Email data. If set to NULL then $this->message would be used.
-   * @param string $crlf
-   *   (Optional) End of line character.
    *
    * @return string
    *   Email text (eml) with attachments.
    */
-  private function appendWebformFilesToEml($eml, $message = NULL, $crlf = MAIL_LINE_ENDINGS) {
-    $attachments = $this->getWebformFilesAsEml($eml, $message, $crlf);
+  private function appendWebformFilesToEml($eml, $message = NULL) {
+    $attachments = $this->getWebformFilesAsEml($eml, $message);
 
     if (empty($attachments)) {
       return $eml;
@@ -218,7 +223,7 @@ class WcfceMailProcessor {
     // attachments this boundary is not final now, hence we need to remove
     // '--' at the end of the text (it would be added at the end of the files).
     $eml = rtrim(preg_replace('!--' . $boundary . '--!', '--' . $boundary, $eml))
-      . $crlf
+      . $this->crlf()
       . rtrim($attachments) . '--';
 
     return $eml;
@@ -270,13 +275,11 @@ class WcfceMailProcessor {
    *   Email headers (used to get email boundary).
    * @param array|null $message
    *   (Optional) Email data. If set to NULL then $this->message would be used.
-   * @param string $crlf
-   *   (Optional) End of line character.
    *
    * @return string
    *   Attached file contents (encoded), or empty string if no files found.
    */
-  private function getWebformFilesAsEml($headers, $message = NULL, $crlf = MAIL_LINE_ENDINGS) {
+  private function getWebformFilesAsEml($headers, $message = NULL) {
     $message = $message ?? $this->message;
     $res = '';
 
@@ -287,11 +290,11 @@ class WcfceMailProcessor {
       return $res;
     }
 
-    $boundary = $crlf . '--' . $this->getEmailBoundary($headers) . $crlf;
+    $boundary = $this->crlf() . '--' . $this->getEmailBoundary($headers) . $this->crlf();
 
     // Attach files to email.
     foreach ($file_ids as $file_id) {
-      $res .= $this->getWebformFileContentEml($file_id, NULL, $crlf);
+      $res .= $this->getWebformFileContentEml($file_id);
       $res .= $boundary;
     }
 
@@ -362,23 +365,21 @@ class WcfceMailProcessor {
    *   Drupal file id that is attached to a webform submission.
    * @param object $file
    *   (Optional) Drupal file object. If set then $file_id will be skipped.
-   * @param string $crlf
-   *   (Optional) End of line character, used for encoding to eml.
    *
    * @return string
    *   Encoded file contents to be used in eml, or empty string if not found.
    */
-  private function getWebformFileContentEml($file_id, $file = NULL, $crlf = MAIL_LINE_ENDINGS) {
+  private function getWebformFileContentEml($file_id, $file = NULL) {
     $file = $file ?? $this->getWebformFileObject($file_id);
 
     if (empty($file)) {
       return '';
     }
 
-    $headers  = "Content-Type: " . $file->filemime . "; name=" . $file->filename . $crlf;
-    $headers .= "Content-Disposition: attachment; filename=" . $file->filename . $crlf;
-    $headers .= "Content-Transfer-Encoding: base64" . $crlf;
-    $headers .= "X-Attachment-Id: " . rand(1000, 99999) . $crlf . $crlf;
+    $headers  = "Content-Type: " . $file->filemime . "; name=" . $file->filename . $this->crlf();
+    $headers .= "Content-Disposition: attachment; filename=" . $file->filename . $this->crlf();
+    $headers .= "Content-Transfer-Encoding: base64" . $this->crlf();
+    $headers .= "X-Attachment-Id: " . rand(1000, 99999) . $this->crlf() . $this->crlf();
     $res = $this->getWebformFileContent($file_id, $file);
     $res = $headers . chunk_split(base64_encode($res));
 
@@ -428,6 +429,23 @@ class WcfceMailProcessor {
     ]);
 
     return $result['values'][0]['contact_id'] ?? 0;
+  }
+
+  /**
+   * Gets/sets the end of line characters.
+   *
+   * @param string|null $value
+   *   (Optional) If set then new value of EOL characters would be saved.
+   *
+   * @return string
+   *   End of line characters.
+   */
+  private function crlf($value = NULL) {
+    if ($value) {
+      $this->crlf = $value;
+    }
+
+    return $this->crlf;
   }
 
 }
