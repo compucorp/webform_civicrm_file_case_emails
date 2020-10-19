@@ -119,7 +119,7 @@ class WcfceMailProcessor {
     if (!empty($result['id'])) {
       civicrm_api3('File', 'create', [
         'id' => $result['id'],
-        'file_type_id' => 1,
+        'file_type_id' => $this->getOriginalEmailFileTypeId(),
       ]);
     }
 
@@ -446,6 +446,18 @@ class WcfceMailProcessor {
     }
 
     return $this->crlf;
+  }
+
+  /**
+   * Returns id of 'Original email' file type.
+   *
+   * @return int
+   *   The id of 'Original email' file type.
+   */
+  private function getOriginalEmailFileTypeId() {
+    // The file_type_id column exists in civicrm_file db table, but never used
+    // and there are no actual types defined. So let's return a value directly.
+    return 1;
   }
 
 }
