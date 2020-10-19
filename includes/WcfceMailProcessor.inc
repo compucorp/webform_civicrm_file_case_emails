@@ -47,8 +47,8 @@ class WcfceMailProcessor {
       return FALSE;
     }
 
-    $assignee_id = $this->getContactIdByEmail($this->message['to']);
-    $creator_id  = $this->getContactIdByEmail($this->message['from']);
+    $target_id = $this->getContactIdByEmail($this->message['to']);
+    $creator_id = $this->getContactIdByEmail($this->message['from']);
 
     if (!$creator_id) {
       return FALSE;
@@ -66,7 +66,7 @@ class WcfceMailProcessor {
         'case_id' => $case['id'],
         'subject' => $this->message['subject'],
         'details' => trim($this->message['body'][0]),
-        'assignee_id' => $assignee_id,
+        'target_id' => $target_id,
         'source_contact_id' => $creator_id,
       ]);
 
