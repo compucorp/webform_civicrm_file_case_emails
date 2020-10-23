@@ -47,8 +47,8 @@ class WcfceMailProcessor {
       return FALSE;
     }
 
-    $assignee_id = $this->getContactIdByEmail($this->message['to']);
-    $creator_id  = $this->getContactIdByEmail($this->message['from']);
+    $target_id = $this->getContactIdByEmail($this->message['to']);
+    $creator_id = $this->getContactIdByEmail($this->message['from']);
 
     if (!$creator_id) {
       return FALSE;
@@ -66,7 +66,7 @@ class WcfceMailProcessor {
         'case_id' => $case['id'],
         'subject' => $this->message['subject'],
         'details' => trim($this->message['body'][0]),
-        'assignee_id' => $assignee_id,
+        'target_id' => $target_id,
         'source_contact_id' => $creator_id,
       ]);
 
@@ -119,7 +119,7 @@ class WcfceMailProcessor {
     if (!empty($result['id'])) {
       civicrm_api3('File', 'create', [
         'id' => $result['id'],
-        'file_type_id' => 1,
+        'file_type_id' => $this->getOriginalEmailFileTypeId(),
       ]);
     }
 
@@ -446,6 +446,18 @@ class WcfceMailProcessor {
     }
 
     return $this->crlf;
+  }
+
+  /**
+   * Returns id of 'Original email' file type.
+   *
+   * @return int
+   *   The id of 'Original email' file type.
+   */
+  private function getOriginalEmailFileTypeId() {
+    // The file_type_id column exists in civicrm_file db table, but never used
+    // and there are no actual types defined. So let's return a value directly.
+    return 1;
   }
 
 }
