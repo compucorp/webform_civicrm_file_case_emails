@@ -3,4 +3,6 @@ description = Files webform notification emails as case activities with original
 core = 7.x
 version = 7.x-1.0
 package = CiviCRM
+dependencies[] = mimemail
 dependencies[] = webform_civicrm
+
