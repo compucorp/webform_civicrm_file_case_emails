@@ -48,7 +48,7 @@ a contact that has given email as a primary email first to minimize confusions.
 
 So avoiding duplicate emails is still the best solution to the problem.
 
-However, there is a bonus point. As yo may know it is possible to configure
+However, there is a bonus point. As you may know it is possible to configure
 a webform notification to get `From`/`To` email address from some form field.
 If this field comes from civicrm contact that you've configured under the
 *Civicrm* tab of the form then it is possible to link email address to a contact
