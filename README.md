@@ -15,12 +15,6 @@ on the modules page as usual.
 
 This module has no configuration - just enable it and enjoy.
 
-However, you need to check if mail system settings are configured properly:
-1. Go to Configuration -> System -> Mail System page
-(*/admin/config/system/mailsystem*).
-1. Make sure that *Site-wide default MailSystemInterface class* field has
-*MimeMailSystem* value selected.
-
 ## Usage
 
 This module affects all webforms that are configured:

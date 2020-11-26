@@ -14,6 +14,12 @@ function webform_civicrm_file_case_emails_mail_alter(array &$message) {
     return;
   }
 
+  // Make sure dependency is included.
+  // (The mimemail_rfc_headers() would be required during processing)
+  if (!module_load_include('inc', 'mimemail', 'mimemail')) {
+    return;
+  }
+
   // Include mail processor class.
   if (!module_load_include('inc', 'webform_civicrm_file_case_emails', 'includes/WcfceMailProcessor')) {
     return;
