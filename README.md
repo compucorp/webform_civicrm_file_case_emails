@@ -51,7 +51,19 @@ Keep in mind: in order to make it work for hidden fields you need to make
 sure it's properly configured: go to field settings and check if 'Hidden type'
 is set to 'Hidden element' (not 'Secure value').
 
+As a summary of the above - there are 3 limitations that we should keep in mind:
+1. If the email address field is using a 'secure' method in order to be hidden
+then the above automatic process to find the contact record will not work.
+1. If the email address exists multiple times on the form, then the searching
+for the email address in the form submission might find the wrong instance of
+the email address and might fail / find the wrong contact.
+1. The automatic method does not assist when the user simply enters the `From`
+or `To` address on the email configuration form. In that case the system will
+still attempt to match the email directly with CiviCRM contacts and will select
+contacts with an email address as primary in the first instance.
+
 ## Credit
 
 The development of this module is sponsored
 by [Compucorp](https://www.compucorp.co.uk/).
+
