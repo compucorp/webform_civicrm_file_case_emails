@@ -176,9 +176,7 @@ class WcfceMailProcessor {
   private function generateEml($message = NULL) {
     $message = $message ?? $this->message;
 
-    // (Copied from drupal_mail())
-    // Retrieve the responsible implementation for this message.
-    $system = drupal_mail_system($message['module'], $message['key']);
+    $system = new MimeMailSystem();
     // Format the message body.
     $message = $system->format($message);
 
