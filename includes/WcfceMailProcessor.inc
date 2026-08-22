@@ -176,9 +176,7 @@ class WcfceMailProcessor {
   private function generateEml($message = NULL) {
     $message = $message ?? $this->message;
 
-    // (Copied from drupal_mail())
-    // Retrieve the responsible implementation for this message.
-    $system = drupal_mail_system($message['module'], $message['key']);
+    $system = new MimeMailSystem();
     // Format the message body.
     $message = $system->format($message);
 
@@ -195,7 +193,11 @@ class WcfceMailProcessor {
     $eml .= 'To: ' . implode($this->crlf() . 'To: ', $recipients) . $this->crlf();
     $eml .= 'Subject: ' . $subject . $this->crlf() . $this->crlf();
     $eml .= $body;
-    $eml = $this->appendWebformFilesToEml($eml, $message);
+
+    // Only append files if they're not already included as attachments.
+    if (empty($message['params']['attachments'])) {
+      $eml = $this->appendWebformFilesToEml($eml, $message);
+    }
 
     return $eml;
   }

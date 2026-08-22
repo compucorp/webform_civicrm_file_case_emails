@@ -9,16 +9,16 @@ jobs:
   run-linters:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 2
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Coder and Codesniffer
-        run: composer global require drupal/coder dealerdirect/phpcodesniffer-composer-installer &&
-          ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/.composer/vendor/drupal/coder/coder_sniffer
+      - name: Install phpcs
+        run: cd bin && ./install-php-linter
 
       - name: Fetch target branch
         run: git fetch -n origin ${GITHUB_BASE_REF}
 
-      - name: Run phpcs
-        run: git diff --diff-filter=d  origin/${GITHUB_BASE_REF} --name-only -- '*.php' '*.module' '*.inc' '*.install' '*.theme' ':!*.features.*' | xargs -r ~/.composer/vendor/bin/phpcs --standard=phpcs.xml
+      - name: Run phpcs with Drupal coding standards
+        run: git diff --diff-filter=d  origin/${GITHUB_BASE_REF} --name-only -- '*.php' '*.module' '*.inc' '*.install' '*.theme' ':!*.features.*' | xargs -r ./bin/drupal/coder/vendor/bin/phpcs --standard=phpcs.xml
